@@ -1,0 +1,41 @@
+{
+  "name": "archify3d",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@react-three/drei": "^9.120.8",
+    "@react-three/fiber": "^8.17.10",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
+    "dxf-parser": "^1.1.2",
+    "framer-motion": "^14.4.0",
+    "lucide-react": "^0.468.0",
+    "next": "15.5.28",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.172.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^18.3.18",
+    "@types/three": "^0.172.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.24",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  },
+  "overrides": {
+    "postcss": "^8.5.23"
+  }
+}

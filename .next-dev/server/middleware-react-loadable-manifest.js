@@ -1,0 +1,1 @@
+self.__REACT_LOADABLE_MANIFEST="{\"app/dashboard/projects/[id]/page.tsx -> @/components/ModelViewer\":{\"id\":\"app/dashboard/projects/[id]/page.tsx -> @/components/ModelViewer\",\"files\":[\"static/chunks/_app-pages-browser_src_components_ModelViewer_tsx.js\"]}}"
