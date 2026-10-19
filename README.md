@@ -33,7 +33,7 @@ DXF is the only supported conversion input. The MVP treats all supported line/po
 1. `npm install`
 2. Copy `.env.example` to `.env.local` and fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (the legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` is also accepted).
 3. In Supabase SQL Editor, run `supabase/migrations/0001_init.sql`.
-4. In Supabase Authentication → URL Configuration, set the Site URL to `https://archify3d.netlify.app` and add `https://archify3d.netlify.app/auth/callback` plus `https://archify3d.netlify.app/auth/callback?next=/auth/reset` to Redirect URLs. Add `http://localhost:3000/**` as an additional redirect only if you also test auth locally. Enable email/password and email confirmation. In Netlify, set `NEXT_PUBLIC_SITE_URL` to `https://archify3d.netlify.app`; local development can leave it unset.
+4. In Supabase Authentication → URL Configuration, set the Site URL to `https://archify3d.netlify.app` and add `https://archify3d.netlify.app/auth/callback` plus `https://archify3d.netlify.app/auth/callback?next=/auth/reset` to Redirect URLs. Enable email/password and email confirmation. Confirmation emails use the configured origin; after changing settings, request a new confirmation email because links already sent retain their original destination. If using a custom confirmation template, use Supabase’s `{{ .ConfirmationURL }}` link (or `{{ .RedirectTo }}` for a custom redirect link) and remove any outdated hardcoded URL.
 5. `npm run dev`
 
 The development server uses `.next-dev`; production builds use `.next`, so building while developing cannot replace the active server manifests. Keep one development server per checkout. The dev command is pinned to port 3000 and will fail clearly if it is already occupied instead of silently starting a second server against the same development cache. Stop the existing server with Ctrl+C in its terminal before starting another.
@@ -55,7 +55,7 @@ Project JSON model data is saved to `projects.model_data` by a debounced client 
 
 ## Deploy
 
-Deploy as a standard Next.js App Router application on Vercel or another Node-compatible host. Configure the public Supabase variables and `NEXT_PUBLIC_SITE_URL=https://archify3d.netlify.app`, apply the SQL migration, and set the production Site URL and callback allow-list in Supabase Auth. Confirm the bucket is private and RLS policies are enabled. Do not deploy without independently testing cross-account project queries and Storage reads/writes. No deployment has been performed.
+Deploy as a standard Next.js App Router application on Vercel or another Node-compatible host. Configure the public Supabase variables, apply the SQL migration, and set the production Site URL and callback allow-list in Supabase Auth. Confirm the bucket is private and RLS policies are enabled. Do not deploy without independently testing cross-account project queries and Storage reads/writes. No deployment has been performed.
 
 ## Brand assets
 

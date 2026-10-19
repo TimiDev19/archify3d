@@ -9,10 +9,7 @@ type AuthMode = 'signup' | 'signin' | 'recover' | 'reset';
 
 
 function getAuthRedirectOrigin() {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (configured) return configured.replace(/\/+$/, '');
-  if (process.env.NODE_ENV === 'production') return 'https://archify3d.netlify.app';
-  return window.location.origin;
+  return 'https://archify3d.netlify.app';
 }
 
 function friendlyError(error: unknown) {
