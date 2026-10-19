@@ -7,6 +7,14 @@ import { useToast } from '@/components/ToastProvider';
 
 type AuthMode = 'signup' | 'signin' | 'recover' | 'reset';
 
+
+function getAuthRedirectOrigin() {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) return configured.replace(/\/+$/, '');
+  if (process.env.NODE_ENV === 'production') return 'https://archify3d.netlify.app';
+  return window.location.origin;
+}
+
 function friendlyError(error: unknown) {
   if (error instanceof Error) {
     const message = error.message;
@@ -42,7 +50,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     try {
       const db = createClient();
       if (mode === 'signup') {
-        const { data, error } = await db.auth.signUp({ email, password, options: { emailRedirectTo: `${location.origin}/auth/callback` } });
+        const { data, error } = await db.auth.signUp({ email, password, options: { emailRedirectTo: `${getAuthRedirectOrigin()}/auth/callback` } });
         if (error) throw error;
         if (data.session) location.assign('/dashboard');
         else location.assign('/auth/verify-email');
@@ -57,7 +65,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         setMessage('Password updated. You can now sign in.');
         toast('Your password was updated.', 'success');
       } else {
-        const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/auth/callback?next=/auth/reset` });
+        const { error } = await db.auth.resetPasswordForEmail(email, { redirectTo: `${getAuthRedirectOrigin()}/auth/callback?next=/auth/reset` });
         if (error) throw error;
         setMessageType('status');
         setMessage('If an account exists for that email, a recovery link has been sent.');
