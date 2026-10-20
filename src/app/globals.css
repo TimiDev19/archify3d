@@ -28,6 +28,16 @@ img,svg { max-width:100%; }
 .gradient { background:linear-gradient(135deg,#3B82F6 0%,#6366F1 55%,#4F46E5 100%); }
 .btn { border:1px solid var(--border); border-radius:10px; padding:11px 16px; font-weight:600; background:var(--surface); color:var(--text); display:inline-flex; align-items:center; gap:8px; justify-content:center; transition:.18s; }
 .btn:hover { transform:translateY(-1px); box-shadow:var(--shadow); }
+.danger-button { background:#dc2626; border-color:#dc2626; color:white; }
+.app-dialog-backdrop { position:fixed; inset:0; z-index:3000; display:grid; place-items:center; padding:20px; background:rgba(2,6,23,.56); backdrop-filter:blur(3px); }
+.app-dialog { width:min(100%,440px); padding:24px; border:1px solid var(--border); border-radius:18px; color:var(--text); background:var(--surface); box-shadow:0 24px 80px rgba(2,6,23,.24); }
+.app-dialog-icon { width:42px; height:42px; display:grid; place-items:center; margin-bottom:16px; border-radius:12px; color:var(--accent); background:var(--subtle); }
+.app-dialog-icon.danger { color:#dc2626; background:color-mix(in srgb,#dc2626 10%,var(--surface)); }
+.app-dialog h2 { margin:0; font-size:20px; letter-spacing:-.02em; }
+.app-dialog p { margin:9px 0 18px; color:var(--secondary); line-height:1.6; }
+.app-dialog .input { width:100%; margin:0 0 18px; }
+.app-dialog-actions { display:flex; justify-content:flex-end; gap:10px; }
+.app-dialog-actions .btn { min-width:92px; }
 .btn:disabled { opacity:.55; cursor:not-allowed; transform:none; box-shadow:none; }
 .btn.primary { background:#4F46E5; color:#fff; border-color:#4F46E5; }
 .btn.primary:hover { background:#4338CA; }

@@ -7,6 +7,7 @@ import type { Project } from '@/lib/types';
 import { Logo } from '@/components/Logo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useToast } from '@/components/ToastProvider';
+import { useDialog } from '@/components/DialogProvider';
 import { getSupabaseConfig } from '@/lib/supabase/config';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 
@@ -29,6 +30,7 @@ export default function Dashboard() {
   const [db, setDb] = useState<ReturnType<typeof createClient> | null>(null);
   const [action, setAction] = useState('');
   const toast = useToast();
+  const dialog = useDialog();
 
   useEffect(() => {
     const { url, key } = getSupabaseConfig();
@@ -90,7 +92,7 @@ export default function Dashboard() {
 
   async function renameProject(project: Project) {
     if (!db || action) return;
-    const nextName = window.prompt('Project name', project.name);
+    const nextName = await dialog.prompt({ title: 'Rename project', description: 'Choose a name that makes this project easy to find.', initialValue: project.name, placeholder: 'Project name', confirmLabel: 'Save' });
     if (!nextName?.trim() || nextName.trim() === project.name) return;
     setAction(`rename-${project.id}`);
     const { error: updateError } = await db.from('projects').update({ name: nextName.trim() }).eq('id', project.id);
@@ -120,7 +122,9 @@ export default function Dashboard() {
   }
 
   async function deleteProject(project: Project) {
-    if (!db || action || !window.confirm(`Delete “${project.name}”? This cannot be undone.`)) return;
+    if (!db || action) return;
+    const confirmed = await dialog.confirm({ title: 'Delete project?', description: `“${project.name}” and its saved project data will be permanently deleted. This action cannot be undone.`, confirmLabel: 'Delete project', danger: true });
+    if (!confirmed) return;
     setAction(`delete-${project.id}`);
     if (project.source_file_path) {
       const { error: storageError } = await db.storage.from('archify-private').remove([project.source_file_path]);

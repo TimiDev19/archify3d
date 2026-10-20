@@ -19,13 +19,36 @@ export function parseDxf(text: string): ModelData {
   if (!walls.length) throw new Error('This MVP converts DXF lines and polylines. No LINE or POLYLINE walls were found.');
 
   const header = (doc as typeof doc & { header?: Record<string, unknown> }).header;
-  const unitCode = Number(header?.$INSUNITS);
+  // dxf-parser versions and DXF producers vary in how the header key is exposed;
+  // read the canonical group-code pair from the original HEADER section as a fallback.
+  const headerPairs = text.replace(/\r/g, '').split('\n');
+  let rawUnitCode = Number.NaN;
+  for (let i = 0; i < headerPairs.length - 1; i++) {
+    if (headerPairs[i].trim() === '9' && headerPairs[i + 1].trim().toUpperCase() === '$INSUNITS') {
+      for (let j = i + 2; j < Math.min(i + 8, headerPairs.length - 1); j += 2) {
+        if (headerPairs[j].trim() === '70' || headerPairs[j].trim() === '280') { rawUnitCode = Number(headerPairs[j + 1].trim()); break; }
+        if (headerPairs[j].trim() === '9' || headerPairs[j].trim() === '0') break;
+      }
+      break;
+    }
+  }
+  const unitCode = Number.isFinite(rawUnitCode) ? rawUnitCode : Number(header?.$INSUNITS ?? header?.INSUNITS);
   const declaredUnits: Record<number, { name: string; metersPerUnit: number }> = {
     1: { name: 'in', metersPerUnit: 0.0254 },
     2: { name: 'ft', metersPerUnit: 0.3048 },
+    3: { name: 'mi', metersPerUnit: 1609.344 },
     4: { name: 'mm', metersPerUnit: 0.001 },
     5: { name: 'cm', metersPerUnit: 0.01 },
     6: { name: 'm', metersPerUnit: 1 },
+    7: { name: 'km', metersPerUnit: 1000 },
+    8: { name: 'µin', metersPerUnit: 0.0000000254 },
+    9: { name: 'mil', metersPerUnit: 0.0000254 },
+    10: { name: 'yd', metersPerUnit: 0.9144 },
+    13: { name: 'µm', metersPerUnit: 0.000001 },
+    14: { name: 'dm', metersPerUnit: 0.1 },
+    15: { name: 'dam', metersPerUnit: 10 },
+    16: { name: 'hm', metersPerUnit: 100 },
+    17: { name: 'gm', metersPerUnit: 1_000_000 },
   };
 
   const declared = declaredUnits[unitCode];
@@ -40,15 +63,13 @@ export function parseDxf(text: string): ModelData {
     };
   }
 
-  // Many architecture DXFs omit $INSUNITS but still use millimeter coordinates.
-  // Treat large plan extents as a visible, editable millimeter-scale estimate.
+  // Without unit metadata there is no mathematically reliable way to infer scale.
+  // Offer a practical starting guess based on typical plan extents, clearly marked
+  // as inferred, and let the student choose units or calibrate scale in the UI.
   const coordinates = walls.flatMap(wall => [wall.start, wall.end]);
   const xs = coordinates.map(point => point[0]);
   const ys = coordinates.map(point => point[1]);
   const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
-  if (span >= 250 && span <= 100_000) {
-    return { walls: uniqueWalls(walls, 0.001), units: 'mm', unitsInferred: true, scale: 0.001, floorThickness: 0.15, source: 'dxf' };
-  }
-
-  return { walls: uniqueWalls(walls, 1), units: 'drawing units', unitsInferred: false, scale: 1, floorThickness: 0.15, source: 'dxf' };
+  const guess = span >= 250 ? declaredUnits[4] : span >= 12 ? declaredUnits[2] : declaredUnits[6];
+  return { walls: uniqueWalls(walls, guess.metersPerUnit), units: guess.name, unitsInferred: true, scale: guess.metersPerUnit, floorThickness: 0.15, source: 'dxf' };
 }
